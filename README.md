@@ -4,6 +4,15 @@
 
 * All code is in /EMSCRIPTEN folder
 
+
+Live Example
+------------
+
+Try it out [here](https://rawgit.com/chafey/charls/master/emscripten/test/index.html).
+
+This is also integrated with [cornerstoneWADOImageLoader](https://github.com/chafey/cornerstoneWADOImageLoader)
+
+
 Building JavaScript
 -------------------
 
