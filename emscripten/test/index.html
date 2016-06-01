@@ -1,0 +1,214 @@
+
+<html>
+<head>
+    <script src="../../dist/libCharLS.js"></script>
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+</head>
+<body>
+
+<select id="imageSelector">
+    <option value="../../test/conformance/T8C0E0.jls">T8C0E0 - not working</option>
+    <option value="../../test/conformance/T8C0E3.jls">T8C0E3 - not working</option>
+    <option value="../../test/conformance/T8C1E0.jls" selected>T8C1E0</option>
+    <option value="../../test/conformance/T8C1E3.jls">T8C1E3</option>
+    <option value="../../test/conformance/T8C2E0.jls">T8C2E0</option>
+    <option value="../../test/conformance/T8C2E3.jls">T8C2E3</option>
+    <option value="../../test/conformance/T8NDE3.jls">T8NDE3</option>
+    <option value="../../test/conformance/T8SSE0.jls">T8SSE0 - not working</option>
+    <option value="../../test/conformance/T8SSE3.jls">T8SSE3 - not working</option>
+    <option value="../../test/conformance/T16E0.jls">T16E0</option>
+    <option value="../../test/conformance/T16E0.jls">T16E3</option>
+    <option value="../../test/lena8b.jls">lena8b</option>
+    <option value="../../test/mr2_unc.jls">mr2_unc - not working</option>
+    <option value="../../test/jlsimage/banny_HP1.jls">banny_HP1</option>
+    <option value="../../test/jlsimage/banny_HP2.jls">banny_HP2</option>
+    <option value="../../test/jlsimage/banny_HP3.jls">banny_HP3</option>
+    <option value="../../test/jlsimage/banny_normal.jls">banny_normal</option>
+</select>
+
+<br>
+
+<canvas id='myCanvas' width="256" height="256">
+</canvas>
+
+</body>
+
+<script>
+
+    var charLS = CharLS();
+
+    function jpegLSDecode(data) {
+
+        // prepare input parameters
+        var dataPtr = charLS._malloc(data.length);
+        charLS.writeArrayToMemory(data, dataPtr);
+
+        // prepare output parameters
+        var imagePtrPtr=charLS._malloc(4);
+        var imageSizePtr=charLS._malloc(4);
+        var widthPtr=charLS._malloc(4);
+        var heightPtr=charLS._malloc(4);
+        var bitsPerSamplePtr=charLS._malloc(4);
+        var stridePtr=charLS._malloc(4);
+        var allowedLossyErrorPtr =charLS._malloc(4);
+        var componentsPtr=charLS._malloc(4);
+
+        var interleaveModePtr=charLS._malloc(4);
+
+        // Decode the image
+        var result = charLS.ccall(
+                'jpegls_decode',
+                'number',
+                ['number', 'number', 'number', 'number', 'number', 'number', 'number', 'number', 'number', 'number', 'number'],
+                [dataPtr, data.length, imagePtrPtr, imageSizePtr, widthPtr, heightPtr, bitsPerSamplePtr, stridePtr, componentsPtr, allowedLossyErrorPtr, interleaveModePtr]
+        );
+
+        // If error, free memory and return error code
+        if(result !== 0) {
+            charLS._free(dataPtr);
+            charLS._free(imagePtrPtr);
+            charLS._free(imageSizePtr);
+            charLS._free(widthPtr);
+            charLS._free(heightPtr);
+            charLS._free(bitsPerSamplePtr);
+            charLS._free(stridePtr);
+            charLS._free(componentsPtr);
+            charLS._free(interleaveModePtr);
+            return {
+                result : result
+            };
+        }
+
+        // No error, extract result values into object
+        var image = {
+            result : result,
+            width : charLS.getValue(widthPtr,'i32'),
+            height : charLS.getValue(heightPtr,'i32'),
+            bitsPerSample : charLS.getValue(bitsPerSamplePtr,'i32'),
+            stride : charLS.getValue(stridePtr,'i32'),
+            components : charLS.getValue(componentsPtr, 'i32'),
+            allowedLossyError : charLS.getValue(allowedLossyErrorPtr, 'i32'),
+            interleaveMode: charLS.getValue(interleaveModePtr, 'i32'),
+            pixelData: undefined
+        };
+
+        // No error = copy image from emscripten heap into appropriate array buffer type
+        // TODO: Handle different intrleave modes
+        var imagePtr = charLS.getValue(imagePtrPtr, '*');
+        if(image.bitsPerSample <= 8) {
+            image.pixelData = new Uint8Array(image.width * image.height * image.components);
+        } else {
+            image.pixelData = new Int16Array(image.width * image.height * image.components);
+        }
+        var pixelData = image.pixelData;
+        var offset = 0;
+        for(var y=0; y < image.height; y++) {
+            var firstPixel = imagePtr + image.stride * y;
+            for(var x=0; x < image.width; x++) {
+                for(var c=0; c < image.components; c++) {
+                    if(image.bitsPerSample <= 8) {
+                        pixelData[offset++] = charLS.getValue(firstPixel++, 'i8');
+                    } else {
+                        pixelData[offset++] = charLS.getValue(firstPixel, 'i16');
+                        firstPixel += 2;
+                    }
+                }
+            }
+        }
+
+        // free memory and return image object
+        charLS._free(dataPtr);
+        charLS._free(imagePtr);
+        charLS._free(imagePtrPtr);
+        charLS._free(imageSizePtr);
+        charLS._free(widthPtr);
+        charLS._free(heightPtr);
+        charLS._free(bitsPerSamplePtr);
+        charLS._free(stridePtr);
+        charLS._free(componentsPtr);
+        charLS._free(interleaveModePtr);
+
+        return image;
+    }
+
+    function load(url) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("get", url, true);
+        xhr.responseType = "arraybuffer";
+        xhr.onreadystatechange = function (oEvent) {
+            // TODO: consider sending out progress messages here as we receive the pixel data
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    // request succeeded, create an image object and resolve the deferred
+
+                    // Parse the DICOM File
+                    var dicomPart10AsArrayBuffer = xhr.response;
+                    var byteArray = new Uint8Array(dicomPart10AsArrayBuffer);
+
+                    var image = jpegLSDecode(byteArray);
+                    console.log(image);
+
+                    var c = document.getElementById("myCanvas");
+                    c.width = image.width;
+                    c.height = image.height;
+                    var ctx = c.getContext("2d");
+                    ctx.fillStyle = "#000000";
+                    ctx.fillRect(0,0,image.width, image.height);
+                    var myImageData = ctx.createImageData(image.width, image.height);
+                    var outOffset = 0;
+                    var planeSize = image.width * image.height;
+                    var inOffset = 0;
+                    for(var y=0; y < image.height; y++) {
+                        for (var x = 0; x < image.width; x++) {
+                            if(image.bitsPerSample <= 8) {
+                                if (image.components === 1) {
+                                    myImageData.data[outOffset + 3] = image.pixelData[inOffset++];
+                                    outOffset += 4;
+                                }
+                                else if (image.components === 3) {
+                                    if (image.interleaveMode === 0) { // none (I think this is supposed to be planar but it doesn't work)
+                                        myImageData.data[outOffset++] = image.pixelData[inOffset++];
+                                        myImageData.data[outOffset++] = image.pixelData[inOffset + planeSize];
+                                        myImageData.data[outOffset++] = image.pixelData[inOffset + (planeSize * 2)];
+                                        myImageData.data[outOffset++] = 255;
+                                        inOffset++;
+                                    }
+                                    else if (image.interleaveMode === 1) { // line (actually RGB)
+                                        myImageData.data[outOffset++] = image.pixelData[inOffset++];
+                                        myImageData.data[outOffset++] = image.pixelData[inOffset++];
+                                        myImageData.data[outOffset++] = image.pixelData[inOffset++];
+                                        myImageData.data[outOffset++] = 255;
+                                    }
+                                    else if (image.interleaveMode === 2) { // pixel/sample (actually RGB)
+                                        myImageData.data[outOffset++] = image.pixelData[inOffset++];
+                                        myImageData.data[outOffset++] = image.pixelData[inOffset++];
+                                        myImageData.data[outOffset++] = image.pixelData[inOffset++];
+                                        myImageData.data[outOffset++] = 255;
+                                    }
+                                }
+                            } else {
+                                myImageData.data[outOffset + 3] = (image.pixelData[inOffset++] >> (image.bitsPerSample - 8)) & 255;
+                                outOffset += 4;
+                            }
+                        }
+                    }
+                    ctx.putImageData(myImageData, 0, 0);
+                }
+                else {
+                    console.log('xhr failed');
+                }
+            }
+        };
+        xhr.send();
+    }
+
+    $('#imageSelector').change(function(e) {
+        load(e.target.options[e.target.selectedIndex].value);
+    });
+
+    load('../../test/conformance/T8C1E0.jls');
+
+
+</script>
+
+</html>

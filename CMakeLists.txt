@@ -27,8 +27,12 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -D NDEBUG -O3")
 endif()
 
+
 option (BUILD_SHARED_LIBS "Build CharLS with shared libraries." OFF)
-option (BUILD_TESTING     "Build tests"                         ON)
+option (BUILD_TESTING     "Build tests"                         OFF)
+option (BUILD_JS          "Build CharLS for JavaScript"         ON)
+
+mark_as_advanced(BUILD_JS)
 
 if (WIN32)
    if (BUILD_SHARED_LIBS)
@@ -40,7 +44,9 @@ endif()
 
 set (charls_PUBLIC_HEADERS src/charls.h src/publictypes.h)
 
-add_library(CharLS src/interface.cpp src/jpegls.cpp src/jpegmarkersegment.cpp src/jpegstreamreader.cpp src/jpegstreamwriter.cpp)
+add_library(CharLS src/interface.cpp src/jpegls.cpp src/jpegmarkersegment.cpp src/jpegstreamreader.cpp emscripten/jpeglsdecode.cpp)
+#add_library(CharLS src/interface.cpp src/jpegls.cpp src/jpegmarkersegment.cpp src/jpegstreamreader.cpp src/jpegstreamwriter.cpp)
+
 set (CHARLS_LIB_MAJOR_VERSION 2)
 set (CHARLS_LIB_MINOR_VERSION 0)
 set_target_properties(CharLS PROPERTIES
