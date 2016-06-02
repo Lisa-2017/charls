@@ -44,7 +44,7 @@ endif()
 
 set (charls_PUBLIC_HEADERS src/charls.h src/publictypes.h)
 
-add_library(CharLS src/interface.cpp src/jpegls.cpp src/jpegmarkersegment.cpp src/jpegstreamreader.cpp emscripten/jpeglsdecode.cpp)
+add_library(CharLS src/interface.cpp src/jpegls.cpp src/jpegmarkersegment.cpp src/jpegstreamreader.cpp src/jpegstreamwriter.cpp emscripten/jpeglsdecode.cpp emscripten/jpeglsencode.cpp)
 #add_library(CharLS src/interface.cpp src/jpegls.cpp src/jpegmarkersegment.cpp src/jpegstreamreader.cpp src/jpegstreamwriter.cpp)
 
 set (CHARLS_LIB_MAJOR_VERSION 2)
