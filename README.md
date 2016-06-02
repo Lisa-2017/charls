@@ -37,5 +37,6 @@ emcc libCharLS.a -o dist/libCharLS.js \
      -s NO_FILESYSTEM=1 \
      -s EXPORT_NAME="'CharLS'" \
      -s MODULARIZE=1 \
+     -s DISABLE_EXCEPTION_CATCHING=0 \
      -O3
 ```

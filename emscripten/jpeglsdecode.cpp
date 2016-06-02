@@ -32,13 +32,7 @@ extern "C" {
 
         // Decode the image
         error = JpegLsDecode(*pImage, *pImageSize, compressedBytes, compressedSize, nullptr, nullptr);
-        if(error != charls::ApiResult::OK) {
-            free(*pImage);
-            return (int)error;
-        }
-
-        // success
-        return 0;
+        return (int)error;
     }
 
 }
