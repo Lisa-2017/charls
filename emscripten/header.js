@@ -1,1 +1,1 @@
-// CharLS.js version = "2.0.0";
+// CharLS.js version = "2.0.0.2";
