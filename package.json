@@ -1,0 +1,33 @@
+{
+  "name": "CharLS.js",
+  "version": "2.0.0",
+  "description": "EMSCRIPTEN build of CharLS",
+  "keywords": [
+    "JPEG-LS",
+    "CharLS",
+    "JavaScript",
+    "imaging"
+  ],
+  "author": "Chris Hafey",
+  "homepage": "https://github.com/chafey/charls",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/chafey/charls/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chafey/charls.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "main": "dist/libCharLS.js",
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-contrib-clean": "^0.6.0",
+    "grunt-run": "^0.6.0",
+    "grunt-version": "^1.0.0",
+    "load-grunt-tasks": "^3.2.0",
+    "grunt-contrib-concat": "^0.5.1"
+  }
+}
