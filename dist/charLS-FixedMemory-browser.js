@@ -1,4 +1,4 @@
-/*! CharLS.js - v2.0.0 - 2016-06-07 | (c) 2016 Chris Hafey | https://github.com/chafey/charls */
+/*! CharLS.js - v2.0.0 - 2016-06-08 | (c) 2016 Chris Hafey | https://github.com/chafey/charls */
 var CharLS = function(Module) {
   Module = Module || {};
 

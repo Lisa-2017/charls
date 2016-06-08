@@ -46,27 +46,46 @@ module.exports = function(grunt) {
       }
     },
     concat: {
-      distCharLSFixedMemory: {
+      distCharLSFixedMemoryBrowser: {
         options: {
           stripBanners: true,
           banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - ' +
           '<%= grunt.template.today("yyyy-mm-dd") %> ' +
           '| (c) 2016 Chris Hafey | https://github.com/chafey/charls */\n'
         },
-        src : ['build/charLS-FixedMemory.js'],
-        dest: 'dist/charLS-FixedMemory.js'
+        src : ['build/charLS-FixedMemory-browser.js'],
+        dest: 'dist/charLS-FixedMemory-browser.js'
       },
-      distCharLSDynamicMemory: {
+      distCharLSDynamicMemoryBrowser: {
         options: {
           stripBanners: true,
           banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - ' +
           '<%= grunt.template.today("yyyy-mm-dd") %> ' +
           '| (c) 2016 Chris Hafey | https://github.com/chafey/charls */\n'
         },
-        src : ['build/charLS-DynamicMemory.js'],
-        dest: 'dist/charLS-DynamicMemory.js'
+        src : ['build/charLS-DynamicMemory-browser.js'],
+        dest: 'dist/charLS-DynamicMemory-browser.js'
+      },
+      distCharLSFixedMemoryCommonJS: {
+        options: {
+          stripBanners: true,
+          banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - ' +
+          '<%= grunt.template.today("yyyy-mm-dd") %> ' +
+          '| (c) 2016 Chris Hafey | https://github.com/chafey/charls */\n'
+        },
+        src : ['build/charLS-FixedMemory-commonJS.js'],
+        dest: 'dist/charLS-FixedMemory-commonJS.js'
+      },
+      distCharLSDynamicMemoryCommonJS: {
+        options: {
+          stripBanners: true,
+          banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - ' +
+          '<%= grunt.template.today("yyyy-mm-dd") %> ' +
+          '| (c) 2016 Chris Hafey | https://github.com/chafey/charls */\n'
+        },
+        src : ['build/charLS-DynamicMemory-commonJS.js'],
+        dest: 'dist/charLS-DynamicMemory-commonJS.js'
       }
-
     },
 
   });
