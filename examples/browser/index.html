@@ -3,14 +3,20 @@
 <head>
     <meta charset="utf-8">
     <title>title</title>
+    <script src="../../dist/charLS-FixedMemory-browser.js"></script>
+    <script>
+        var charLSFixed = CharLS();
+        CharLS = undefined;
+    </script>
     <script src="../../dist/charLS-DynamicMemory-browser.js"></script>
+    <script>
+        var charLSDynamic = CharLS();
+    </script>
 </head>
 <body>
 <script>
 
-    var charLS = CharLS();
-
-    function jpegLSDecode(data, isSigned) {
+    function jpegLSDecode(data, isSigned, charLS) {
 
         // prepare input parameters
         var dataPtr = charLS._malloc(data.length);
@@ -85,8 +91,18 @@
     }
 
     function decodeAndDump(compressedData) {
+        // Initialize both codecs so we get good timings
+        jpegLSDecode(compressedData, false, charLSDynamic);
+        jpegLSDecode(compressedData, false, charLSFixed);
+
+        // Decode using both versions to compare performance
+        console.time('jpegLSDecode Dynamic');
+        var imageFrame = jpegLSDecode(compressedData, false, charLSDynamic);
+        console.timeEnd('jpegLSDecode Dynamic');
+        console.time('jpegLSDecode Fixed');
+        var imageFrame = jpegLSDecode(compressedData, false, charLSFixed);
+        console.timeEnd('jpegLSDecode Fixed');
         console.log('compressedData length', compressedData.length);
-        var imageFrame = jpegLSDecode(compressedData, false);
         console.log('uncompressedData length', imageFrame.pixelData.length);
     }
 
