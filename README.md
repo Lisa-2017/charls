@@ -15,12 +15,23 @@ See https://github.com/chafey/cornerstoneWADOImageLoader/blob/master/src/decoder
 ### Building
 
 Requires
-* emscripten
-* cmake
-* node
-* grunt
+* docker
 
-> grunt
+
+#### Building
+
+# start a docker container with the EMSCRIPTEN build environment and shell into it
+> ./emccdocker.sh
+
+# create directory "release" to hold the cmake generated makefile and build output
+> mkdir release
+> cd release
+# run cmake with EMSCRIPTEN tool chain
+> emmake cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_CODEC=OFF -DBUILD_JS=ON -DBUILD_SHARED_LIBS=OFF -GUnix\ Makefiles ..
+# build the library
+> make
+# create standalone JS/WASM outputs for browser/node/fixed-memory/dynamic-memory
+> ../emccbuild.sh
 
 #### Built Files
 
