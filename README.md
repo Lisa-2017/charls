@@ -20,18 +20,28 @@ Requires
 
 #### Building
 
-# start a docker container with the EMSCRIPTEN build environment and shell into it
+Start a docker container with the EMSCRIPTEN build environment and shell into it
 > ./emccdocker.sh
 
-# create directory "release" to hold the cmake generated makefile and build output
-> mkdir release
-> cd release
-# run cmake with EMSCRIPTEN tool chain
+Create directory "release" to hold the cmake generated makefile and build output
+
+> mkdir release; cd release
+
+Run cmake with EMSCRIPTEN tool chain
+
 > emmake cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_CODEC=OFF -DBUILD_JS=ON -DBUILD_SHARED_LIBS=OFF -GUnix\ Makefiles ..
-# build the library
+
+Build the library
+
 > make
-# create standalone JS/WASM outputs for browser/node/fixed-memory/dynamic-memory
+
+Create standalone JS/WASM outputs for browser/node/fixed-memory/dynamic-memory
+
 > ../emccbuild.sh
+
+Copy built files into dist folder
+
+> cp build/*.js ../dist
 
 #### Built Files
 
